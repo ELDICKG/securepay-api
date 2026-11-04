@@ -37,3 +37,18 @@ jobs:
         with:
           name: rapport-semgrep
           path: semgrep.json
+
+  dependances:
+    name: Dépendances et SBOM (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: SBOM CycloneDX
+        run: docker run --rm -v "$PWD:/src" aquasec/trivy:0.76.0 fs -q --format cyclonedx --output /src/sbom.cdx.json /src
+      - name: Vulnérabilités HIGH et CRITICAL
+        run: docker run --rm -v "$PWD:/src" aquasec/trivy:0.76.0 fs -q --scanners vuln --severity HIGH,CRITICAL --exit-code 1 /src
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: sbom
+          path: sbom.cdx.json
