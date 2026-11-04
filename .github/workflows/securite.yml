@@ -22,3 +22,18 @@ jobs:
         with:
           name: rapport-gitleaks
           path: gitleaks.json
+
+  sast:
+    name: Code (Semgrep)
+    runs-on: ubuntu-latest
+    container:
+      image: semgrep/semgrep:1.183.0
+    steps:
+      - uses: actions/checkout@v7
+      - name: Analyse statique
+        run: semgrep scan --config p/javascript --metrics=off --error --json --output semgrep.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: rapport-semgrep
+          path: semgrep.json
